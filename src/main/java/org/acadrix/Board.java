@@ -7,13 +7,18 @@ import java.util.Scanner;
 
 public class Board {
     private final int dimensions;
-    private final int[][] board;
+    private final Difficulty p1Difficulty;
+    private final Difficulty p2Difficulty;
     private final Player p1;
     private final Player p2;
+    private int[][] board;
     private boolean isP1Turn = true;
 
     public Board(Scanner scanner, int dimensions, Difficulty p1, Difficulty p2) {
+        this.p1Difficulty = p1;
+        this.p2Difficulty = p2;
         this.dimensions = dimensions;
+        this.board = new int[dimensions][dimensions];
 
         scanner.nextLine();
 
@@ -39,7 +44,6 @@ public class Board {
             default -> new Player(scanner.nextLine());
         };
 
-        this.board = new int[dimensions][dimensions];
     }
 
     public void setup() {
@@ -84,15 +88,18 @@ public class Board {
     }
 
     public void start(Scanner scanner) {
+        this.board = new int[this.dimensions][this.dimensions];
         this.setup();
 
         do {
             Player player = this.isP1Turn ? p1 : p2;
+            Difficulty difficulty = this.isP1Turn ? p1Difficulty : p2Difficulty;
             System.out.printf("%s's turn\n", player.getPlayerName());
             this.print();
 
             int x = player.getInputX(scanner);
             int y = player.getInputY(scanner);
+
             if (x > dimensions || x < 1) {
                 System.out.println("You need a valid x-coordinate from 1 - " + this.dimensions + ".");
                 continue;
@@ -101,7 +108,7 @@ public class Board {
                 System.out.println("You need a valid y-coordinate from 1 - " + this.dimensions + ".");
                 continue;
             }
-            if (this.board[x - 1][y - 1] != 0) {
+            if (this.board[x - 1][y - 1] != 0 && difficulty.equals(Difficulty.PLAYER)) {
                 System.out.println("That spot is occupied already.");
                 continue;
             }
@@ -109,12 +116,15 @@ public class Board {
             this.board[y - 1][x - 1] = this.isP1Turn ? -1 : 1;
             if (didWin(this.isP1Turn)) {
                 break;
+            } else if (!canMove()) {
+                System.out.println("Draw");
+                return;
             }
             this.isP1Turn = !this.isP1Turn;
         } while (true);
-
+        this.print();
         Player player = this.isP1Turn ? p1 : p2;
-        System.out.printf("Congratulations! %s has won! That is 20 points added to their score.\n", player.getPlayerName(), player.getScore());
+        System.out.printf("Congratulations! %s has won! That is 20 points added to their score.\n", player.getPlayerName());
 
         if (this.isP1Turn) {
             this.p1.incremenetScore();
@@ -158,21 +168,23 @@ public class Board {
                         count++;
                     }
                 }
-            }
-            if (count == this.dimensions) {
-                return true;
-            }
 
-            if ((j + 1) % this.dimensions == 0) {
-                count = 0;
+                if (count == this.dimensions) {
+                    return true;
+                }
             }
+            count = 0;
         }
-        if (count == this.dimensions) {
-            return true;
-        } else if (!horizontal) {
+        if (!horizontal) {
             return false;
         }
         return this.checkGrid(i, false);
+    }
+
+    public boolean canMove() {
+        return Arrays.stream(this.board)
+                .flatMapToInt(Arrays::stream)
+                .anyMatch(e -> e == 0);
     }
 
     public boolean didWin(boolean p1) {
