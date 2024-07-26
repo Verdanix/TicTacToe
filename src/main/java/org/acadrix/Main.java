@@ -22,7 +22,7 @@ public class Main {
                 System.out.println(menu);
                 input = scanner.nextInt();
                 if (input == 1) {
-                    board.start();
+                    board.start(scanner);
                 } else if (input == 2) {
                     board.showScores();
                 } else if (input == 3) {

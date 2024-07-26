@@ -10,7 +10,7 @@ public class Board {
     private final int[][] board;
     private final Player p1;
     private final Player p2;
-    private boolean isP1Turn;
+    private boolean isP1Turn = true;
 
     public Board(Scanner scanner, int dimensions, Difficulty p1, Difficulty p2) {
         this.dimensions = dimensions;
@@ -57,8 +57,8 @@ public class Board {
     public void showScores() {
         System.out.println(" Scores:");
         System.out.println("---------");
-        System.out.printf("P1: %s\n", this.p1.getScore());
-        System.out.printf("P2: %s\n\n", this.p2.getScore());
+        System.out.printf("%s: %s\n", this.p1.getPlayerName(), this.p1.getScore());
+        System.out.printf("%s: %s\n\n", this.p2.getPlayerName(), this.p2.getScore());
     }
 
     public void print() {
@@ -83,9 +83,45 @@ public class Board {
         System.out.println(builder);
     }
 
-    public void start() {
+    public void start(Scanner scanner) {
         this.setup();
-        this.print();
+
+        do {
+            Player player = this.isP1Turn ? p1 : p2;
+            System.out.printf("%s's turn\n", player.getPlayerName());
+            this.print();
+
+            int x = player.getInputX(scanner);
+            int y = player.getInputY(scanner);
+            if (x > dimensions || x < 1) {
+                System.out.println("You need a valid x-coordinate from 1 - " + this.dimensions + ".");
+                continue;
+            }
+            if (y > dimensions || y < 1) {
+                System.out.println("You need a valid y-coordinate from 1 - " + this.dimensions + ".");
+                continue;
+            }
+            if (this.board[x - 1][y - 1] != 0) {
+                System.out.println("That spot is occupied already.");
+                continue;
+            }
+
+            this.board[y - 1][x - 1] = this.isP1Turn ? -1 : 1;
+            if (didWin(this.isP1Turn)) {
+                break;
+            }
+            this.isP1Turn = !this.isP1Turn;
+        } while (true);
+
+        Player player = this.isP1Turn ? p1 : p2;
+        System.out.printf("Congratulations! %s has won! That is 20 points added to their score.\n", player.getPlayerName(), player.getScore());
+
+        if (this.isP1Turn) {
+            this.p1.incremenetScore();
+            return;
+        }
+        this.p2.incremenetScore();
+
     }
 
     private boolean checkDiags(int i) {
