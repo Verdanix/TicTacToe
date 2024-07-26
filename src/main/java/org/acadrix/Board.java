@@ -21,6 +21,17 @@ public class Board {
         }
     }
 
+    public void resetScores(){
+        //TODO
+        System.out.println("Scores reset!\n");
+    }
+    public void showScores() {
+        //TODO
+        System.out.println(" Scores:");
+        System.out.println("---------");
+        System.out.printf("P1: %s\n", 0); //TODO
+        System.out.printf("P2: %s\n\n", 0); //TODO
+    }
     public void print() {
         StringBuilder builder = new StringBuilder("  |");
 
