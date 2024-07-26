@@ -43,10 +43,8 @@ public class Board {
     }
 
     public void setup() {
-        int[] row = new int[dimensions];
-        Arrays.fill(row, 0);
         for (int i = 0; i < this.dimensions; i++) {
-            Arrays.fill(this.board, row);
+            Arrays.fill(this.board[i], 0);
         }
     }
 
@@ -66,15 +64,15 @@ public class Board {
     public void print() {
         StringBuilder builder = new StringBuilder("  |");
 
-        for (int i = 1; i <= dimensions; i++) {
+        for (int i = 1; i <= this.dimensions; i++) {
             builder.append(String.format("%2d |", i));
         }
 
         builder.append("\n");
 
-        for (int i = 0; i < dimensions; i++) {
+        for (int i = 0; i < this.dimensions; i++) {
             builder.append((i + 1)).append(" |");
-            for (int j = 0; j < dimensions; j++) {
+            for (int j = 0; j < this.dimensions; j++) {
                 int cellContent = this.board[i][j];
                 char displayChar = cellContent == -1 ? 'X' : cellContent == 0 ? ' ' : 'O';
                 builder.append(String.format("%2c |", displayChar));
@@ -90,8 +88,64 @@ public class Board {
         this.print();
     }
 
+    private boolean checkDiags(int i) {
+        int count = 0;
+        for (int j = 0; j < this.dimensions; j++) {
+            if (this.board[j][j] == i) {
+                count++;
+            }
+        }
+
+        if (count == this.dimensions) return true;
+        count = 0;
+
+        int row = 0;
+        for (int j = this.dimensions - 1; j >= 0; j--) {
+            if (this.board[row][j] == i) {
+                count++;
+            }
+            row++;
+        }
+        return count == this.dimensions;
+    }
+
+    private boolean checkGrid(int i, boolean horizontal) {
+        int count = 0;
+        for (int j = 0; j < this.dimensions; j++) {
+            for (int k = 0; k < this.dimensions; k++) {
+                if (horizontal) {
+                    if (this.board[j][k] == i) {
+                        count++;
+                    }
+                } else {
+                    if (this.board[k][j] == i) {
+                        count++;
+                    }
+                }
+            }
+            if (count == this.dimensions) {
+                return true;
+            }
+
+            if ((j + 1) % this.dimensions == 0) {
+                count = 0;
+            }
+        }
+        if (count == this.dimensions) {
+            return true;
+        } else if (!horizontal) {
+            return false;
+        }
+        return this.checkGrid(i, false);
+    }
+
+    public boolean didWin(boolean p1) {
+        int val = p1 ? -1 : 1;
+        return checkDiags(val) || checkGrid(val, true);
+    }
+
     public int getDimensions() {
-        return dimensions;
+        return this.dimensions;
     }
 
     public int[][] getBoard() {

@@ -7,7 +7,11 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in)) {
-            Board board = new Board(scanner, 3, Main.choosePlayer(scanner, true), Main.choosePlayer(scanner, false));
+            int dimensions = getBoardDimensions(scanner);
+            Difficulty p1 = Main.choosePlayer(scanner, true);
+            Difficulty p2 = Main.choosePlayer(scanner, false);
+
+            Board board = new Board(scanner, dimensions, p1, p2);
             String menu = """
                     1.) Start new Game
                     2.) Show Scores
@@ -30,6 +34,10 @@ public class Main {
         }
     }
 
+    private static int getBoardDimensions(Scanner scanner) {
+        System.out.println("Pick out board dimensions. Recommended settings: 3-9");
+        return scanner.nextInt();
+    }
     private static Difficulty choosePlayer(Scanner scanner, boolean isP1) {
         String menu = String.format("""
                 Choose %s:
