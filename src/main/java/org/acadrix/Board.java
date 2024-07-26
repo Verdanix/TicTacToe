@@ -27,10 +27,10 @@ public class Board {
         }
 
         this.p1 = switch (p1) {
-            case EASY -> new Easy("P1 Easy AI", this.getBoard());
-            case MEDIUM -> new Medium("P1 Mid AI", this.getBoard());
-            case HARD -> new Hard("P1 Hard AI", this.getBoard());
-            default -> new Player(scanner.nextLine());
+            case EASY -> new Easy("P1 Easy AI", true, this.getBoard());
+            case MEDIUM -> new Medium("P1 Mid AI", true, this.getBoard());
+            case HARD -> new Hard("P1 Hard AI", true, this.getBoard());
+            default -> new Player(scanner.nextLine(), true, this.getBoard());
         };
 
         if (p2 == Difficulty.PLAYER) {
@@ -38,10 +38,10 @@ public class Board {
         }
 
         this.p2 = switch (p2) {
-            case EASY -> new Easy("P2 Easy AI", this.getBoard());
-            case MEDIUM -> new Medium("P2 Mid AI", this.getBoard());
-            case HARD -> new Hard("P2 Hard AI", this.getBoard());
-            default -> new Player(scanner.nextLine());
+            case EASY -> new Easy("P2 Easy AI", false, this.getBoard());
+            case MEDIUM -> new Medium("P2 Mid AI", false, this.getBoard());
+            case HARD -> new Hard("P2 Hard AI", false, this.getBoard());
+            default -> new Player(scanner.nextLine(), false, this.getBoard());
         };
 
     }
@@ -96,7 +96,7 @@ public class Board {
             Difficulty difficulty = this.isP1Turn ? p1Difficulty : p2Difficulty;
             System.out.printf("%s's turn\n", player.getPlayerName());
             this.print();
-
+            player.setBoard(this.board);
             int x = player.getInputX(scanner);
             int y = player.getInputY(scanner);
 
@@ -108,12 +108,13 @@ public class Board {
                 System.out.println("You need a valid y-coordinate from 1 - " + this.dimensions + ".");
                 continue;
             }
-            if (this.board[x - 1][y - 1] != 0 && difficulty.equals(Difficulty.PLAYER)) {
+            if (this.board[y - 1][x - 1] != 0 && difficulty.equals(Difficulty.PLAYER)) {
                 System.out.println("That spot is occupied already.");
                 continue;
             }
 
             this.board[y - 1][x - 1] = this.isP1Turn ? -1 : 1;
+            player.setBoard(this.board);
             if (didWin(this.isP1Turn)) {
                 break;
             } else if (!canMove()) {
